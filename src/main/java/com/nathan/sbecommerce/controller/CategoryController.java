@@ -1,5 +1,6 @@
 package com.nathan.sbecommerce.controller;
 
+import com.nathan.sbecommerce.config.AppConstant;
 import com.nathan.sbecommerce.payload.request.CategoryDTO;
 import com.nathan.sbecommerce.payload.response.CategoryRes;
 import com.nathan.sbecommerce.service.CategoryService;
@@ -17,8 +18,13 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping("/public/categories")
-    public ResponseEntity<CategoryRes> getAllCategories() {
-        CategoryRes categories = categoryService.getCategories();
+    public ResponseEntity<CategoryRes> getAllCategories(
+            @RequestParam(name = "pageNumber", defaultValue = AppConstant.PAGE_NUMBER, required = false) Integer pageNumber,
+            @RequestParam(name = "pageSize", defaultValue = AppConstant.PAGE_SIZE, required = false) Integer pageSize,
+            @RequestParam(name = "sortBy", defaultValue = AppConstant.SORT_BY, required = false) String sortBy,
+            @RequestParam(name = "sortOrder", defaultValue = AppConstant.SORT_DIR, required = false) String sortOrder
+    ) {
+        CategoryRes categories = categoryService.getCategories(pageNumber, pageSize, sortBy, sortOrder);
         return new ResponseEntity<>(categories, HttpStatus.OK);
     }
 

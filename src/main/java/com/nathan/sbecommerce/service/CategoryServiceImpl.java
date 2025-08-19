@@ -8,6 +8,10 @@ import com.nathan.sbecommerce.payload.response.CategoryRes;
 import com.nathan.sbecommerce.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,8 +26,15 @@ public class CategoryServiceImpl implements CategoryService {
 
 
     @Override
-    public CategoryRes getCategories() {
-        List<Category> categories = this.categoryRepository.findAll();
+    public CategoryRes getCategories(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+
+        Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc") ?
+                Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
+        Page categoryPage = this.categoryRepository.findAll(pageable);
+
+        List<Category> categories = categoryPage.getContent();
 
         if (categories.isEmpty()) {
             throw new APIException("No categories found");
@@ -35,6 +46,11 @@ public class CategoryServiceImpl implements CategoryService {
 
         CategoryRes categoryRes = new CategoryRes();
         categoryRes.setContent(categoryDTOS);
+        categoryRes.setPageNumber(categoryPage.getNumber());
+        categoryRes.setPageSize(categoryPage.getSize());
+        categoryRes.setTotalElements(categoryPage.getTotalElements());
+        categoryRes.setTotalPages(categoryPage.getTotalPages());
+        categoryRes.setLastPage(categoryPage.isLast());
         return categoryRes;
     }
 
