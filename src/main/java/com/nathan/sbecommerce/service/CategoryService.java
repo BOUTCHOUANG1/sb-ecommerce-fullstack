@@ -1,18 +1,17 @@
 package com.nathan.sbecommerce.service;
 
-import com.nathan.sbecommerce.model.Category;
+import com.nathan.sbecommerce.payload.request.CategoryDTO;
+import com.nathan.sbecommerce.payload.response.CategoryRes;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public interface CategoryService {
 
-    List<Category> getCategories();
+    CategoryRes getCategories();
 
-    void createCategory(Category category);
+    CategoryDTO createCategory(CategoryDTO category);
 
-    Category updateCategory(Category category, Long categoryId);
+    CategoryDTO updateCategory(CategoryDTO categoryDto, Long categoryId);
 
-    String deleteCategory(Long id);
+    CategoryDTO deleteCategory(Long id);
 }
