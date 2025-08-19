@@ -1,31 +1,37 @@
 package com.nathan.sbecommerce.service;
 
+import com.nathan.sbecommerce.exception.APIException;
+import com.nathan.sbecommerce.exception.ResourceNotFoundException;
 import com.nathan.sbecommerce.model.Category;
 import com.nathan.sbecommerce.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
 
-    //private List<Category> categories = new ArrayList<>();
     private CategoryRepository categoryRepository;
 
-    private Long id = 1L;
+
     @Override
     public List<Category> getCategories() {
-        return this.categoryRepository.findAll();
+        List<Category> categories = this.categoryRepository.findAll();
+
+        if (categories.isEmpty()) {
+            throw new APIException("No categories found");
+        }
+        return categories;
     }
 
     @Override
     public void createCategory(Category category) {
-        category.setCategoryid(id++);
+        Category savedCategory = categoryRepository.findByCategoryName(category.getCategoryName());
+        if (savedCategory != null) {
+            throw new APIException("Category with name " + category.getCategoryName() + " already exists !!!");
+        }
         this.categoryRepository.save(category);
     }
 
@@ -33,12 +39,10 @@ public class CategoryServiceImpl implements CategoryService {
     public Category updateCategory(Category category, Long categoryId) {
 
         Category categoryToUpdate = this.categoryRepository.findById(categoryId).orElseThrow(()
-                -> new ResponseStatusException(HttpStatus.NOT_FOUND,  "Category is not found with id " + categoryId));
+                -> new ResourceNotFoundException("Category", "categoryId", categoryId));
 
-        category.setCategoryid(categoryId);
-
+        category.setCategoryId(categoryId);
         Category savedCategory = this.categoryRepository.save(category);
-
         return savedCategory;
 
     }
@@ -46,11 +50,9 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public String deleteCategory(Long categoryId) {
         Category optionalCategory = this.categoryRepository.findById(categoryId).orElseThrow(()
-                -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found with id " + categoryId));
+                -> new ResourceNotFoundException("Category", "categoryId", categoryId));
 
         this.categoryRepository.delete(optionalCategory);
-
         return "Category with id " + categoryId + " is deleted successfully";
-
     }
 }
