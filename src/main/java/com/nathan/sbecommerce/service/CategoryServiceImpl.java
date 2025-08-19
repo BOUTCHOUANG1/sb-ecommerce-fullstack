@@ -30,32 +30,27 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public String updateCategory(Category category, Long Categoryid) {
-        List<Category> categories = this.categoryRepository.findAll();
+    public Category updateCategory(Category category, Long categoryId) {
 
-        Optional<Category> optionalCategory= categories.stream()
-                .filter(c -> c.getCategoryid().equals(category.getCategoryid()))
-                .findFirst();;
+        Category categoryToUpdate = this.categoryRepository.findById(categoryId).orElseThrow(()
+                -> new ResponseStatusException(HttpStatus.NOT_FOUND,  "Category is not found with id " + categoryId));
 
-        if (optionalCategory.isPresent()) {
-            Category existingCategory = optionalCategory.get();
-            existingCategory.setCategoryname(category.getCategoryname());
-            return existingCategory.getCategoryname() + " is updated successfully";
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found with id " + category.getCategoryid());
-        }
+        category.setCategoryid(categoryId);
+
+        Category savedCategory = this.categoryRepository.save(category);
+
+        return savedCategory;
+
     }
 
     @Override
-    public String deleteCategory(Long Categoryid) {
-        List<Category> categories = this.categoryRepository.findAll();
+    public String deleteCategory(Long categoryId) {
+        Category optionalCategory = this.categoryRepository.findById(categoryId).orElseThrow(()
+                -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found with id " + categoryId));
 
-        Category category = categories.stream()
-                .filter(c -> c.getCategoryid().equals(Categoryid))
-                .findFirst().orElseThrow(()
-                        -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found with id " + Categoryid));
+        this.categoryRepository.delete(optionalCategory);
 
-        categories.remove(category);
-        return "Category with id " + Categoryid + " is deleted successfully";
+        return "Category with id " + categoryId + " is deleted successfully";
+
     }
 }

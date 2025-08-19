@@ -4,6 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import lombok.*;
+import org.antlr.v4.runtime.misc.NotNull;
 
 @Getter
 @Setter
@@ -14,5 +15,7 @@ public class Category {
     @Id
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
     private Long Categoryid;
-    private String Categoryname;
+
+    @NotNull
+    private String CategoryName;
 }

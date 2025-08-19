@@ -7,8 +7,12 @@ import java.util.List;
 
 @Service
 public interface CategoryService {
+
     List<Category> getCategories();
+
     void createCategory(Category category);
-    String updateCategory(Category category, Long categoryid);
+
+    Category updateCategory(Category category, Long categoryId);
+
     String deleteCategory(Long id);
 }
