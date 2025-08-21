@@ -1,8 +1,8 @@
 package com.nathan.sbecommerce.controller;
 
 import com.nathan.sbecommerce.config.AppConstant;
-import com.nathan.sbecommerce.payload.request.CategoryDTO;
-import com.nathan.sbecommerce.payload.response.CategoryRes;
+import com.nathan.sbecommerce.dto.request.CategoryRequest;
+import com.nathan.sbecommerce.dto.response.CategoryResponse;
 import com.nathan.sbecommerce.service.CategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,32 +18,32 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping("/public/categories")
-    public ResponseEntity<CategoryRes> getAllCategories(
+    public ResponseEntity<CategoryResponse> getAllCategories(
             @RequestParam(name = "pageNumber", defaultValue = AppConstant.PAGE_NUMBER, required = false) Integer pageNumber,
             @RequestParam(name = "pageSize", defaultValue = AppConstant.PAGE_SIZE, required = false) Integer pageSize,
             @RequestParam(name = "sortBy", defaultValue = AppConstant.SORT_BY, required = false) String sortBy,
             @RequestParam(name = "sortOrder", defaultValue = AppConstant.SORT_DIR, required = false) String sortOrder
     ) {
-        CategoryRes categories = categoryService.getCategories(pageNumber, pageSize, sortBy, sortOrder);
+        CategoryResponse categories = categoryService.getCategories(pageNumber, pageSize, sortBy, sortOrder);
         return new ResponseEntity<>(categories, HttpStatus.OK);
     }
 
     @PostMapping("/admin/category")
-    public ResponseEntity<CategoryDTO> createCategory(@Valid @RequestBody CategoryDTO categoryDto) {
-        CategoryDTO savedCategory = categoryService.createCategory(categoryDto);
+    public ResponseEntity<CategoryRequest> createCategory(@Valid @RequestBody CategoryRequest categoryRequest) {
+        CategoryRequest savedCategory = categoryService.createCategory(categoryRequest);
          return new ResponseEntity<>(savedCategory, HttpStatus.CREATED);
     }
 
     @DeleteMapping("/admin/category/{categoryid}")
-    public ResponseEntity<CategoryDTO> deleteCategory(@PathVariable Long categoryId) {
-        CategoryDTO deletedCategoryDto = categoryService.deleteCategory(categoryId);
-        return new ResponseEntity<>(deletedCategoryDto, HttpStatus.OK);
+    public ResponseEntity<CategoryRequest> deleteCategory(@PathVariable Long categoryId) {
+        CategoryRequest deletedCategoryRequest = categoryService.deleteCategory(categoryId);
+        return new ResponseEntity<>(deletedCategoryRequest, HttpStatus.OK);
     }
 
     @PutMapping("/admin/category/{categoryid}")
-    public ResponseEntity<CategoryDTO> updateCategory(@Valid @RequestBody CategoryDTO categoryDto,
-                                                 @PathVariable Long categoryId) {
-        CategoryDTO savedCategory = categoryService.updateCategory(categoryDto, categoryId);
+    public ResponseEntity<CategoryRequest> updateCategory(@Valid @RequestBody CategoryRequest categoryRequest,
+                                                          @PathVariable Long categoryId) {
+        CategoryRequest savedCategory = categoryService.updateCategory(categoryRequest, categoryId);
         return new ResponseEntity<>(savedCategory, HttpStatus.OK);
     }
 }
