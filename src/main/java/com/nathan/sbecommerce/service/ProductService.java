@@ -2,6 +2,9 @@ package com.nathan.sbecommerce.service;
 
 import com.nathan.sbecommerce.dto.request.ProductRequest;
 import com.nathan.sbecommerce.dto.response.ProductResponse;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 
 public interface ProductService {
@@ -17,4 +20,6 @@ public interface ProductService {
     ProductRequest updateProduct(ProductRequest product, Long productId);
 
     ProductRequest deleteProduct(Long productId);
+
+    ProductRequest updateProductImage(Long productId, MultipartFile image) throws IOException;
 }

@@ -5,10 +5,14 @@ import com.nathan.sbecommerce.dto.request.ProductRequest;
 import com.nathan.sbecommerce.dto.response.ProductResponse;
 import com.nathan.sbecommerce.model.Product;
 import com.nathan.sbecommerce.service.ProductService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
@@ -17,7 +21,7 @@ public class ProductController {
     private final ProductService productService;
 
     @PostMapping("/admin/categories/{categoryId}/product")
-    public ResponseEntity<ProductRequest> addProduct(@RequestBody ProductRequest productRequest,
+    public ResponseEntity<ProductRequest> addProduct(@RequestBody @Valid ProductRequest productRequest,
                                                      @PathVariable Long categoryId){
         ProductRequest savedProduct = productService.addProduct(productRequest, categoryId);
         return new ResponseEntity<>(savedProduct, HttpStatus.CREATED);
@@ -54,7 +58,7 @@ public class ProductController {
     }
 
     @PutMapping("/admin/products/{productId}")
-    public ResponseEntity<ProductRequest> updateProduct(@RequestBody ProductRequest productRequest, @PathVariable Long productId){
+    public ResponseEntity<ProductRequest> updateProduct(@RequestBody @Valid ProductRequest productRequest, @PathVariable Long productId){
         ProductRequest updatedProductRequest = productService.updateProduct(productRequest, productId);
         return new ResponseEntity<>(updatedProductRequest, HttpStatus.OK);
     }
@@ -64,4 +68,13 @@ public class ProductController {
         ProductRequest deletedProduct = productService.deleteProduct(productId);
         return new ResponseEntity<>(deletedProduct, HttpStatus.OK);
     }
+
+    @PutMapping("/admin/products/{productId}/image")
+    public ResponseEntity<ProductRequest> updateProductImage(@PathVariable Long productId,
+                                                             @RequestParam("image") MultipartFile image) throws IOException {
+        ProductRequest updatedProductRequest = productService.updateProductImage(productId, image);
+        return new ResponseEntity<>(updatedProductRequest, HttpStatus.OK);
+    }
+
+
 }
