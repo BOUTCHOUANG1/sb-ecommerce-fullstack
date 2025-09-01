@@ -4,10 +4,12 @@ import com.nathan.sbecommerce.dto.request.CategoryRequest;
 import com.nathan.sbecommerce.dto.response.CategoryResponse;
 import org.springframework.stereotype.Service;
 
-@Service
+
 public interface CategoryService {
 
-    CategoryResponse getCategories(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
+    CategoryResponse getCategories(Integer pageNumber,
+                                   Integer pageSize,
+                                   String sortBy, String sortOrder);
 
     CategoryRequest createCategory(CategoryRequest category);
 
