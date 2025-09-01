@@ -17,10 +17,10 @@ public class ProductController {
     private final ProductService productService;
 
     @PostMapping("/admin/categories/{categoryId}/product")
-    public ResponseEntity<ProductRequest> addProduct(@RequestBody Product product,
+    public ResponseEntity<ProductRequest> addProduct(@RequestBody ProductRequest productRequest,
                                                      @PathVariable Long categoryId){
-        ProductRequest productRequest = productService.addProduct(product, categoryId);
-        return new ResponseEntity<>(productRequest, HttpStatus.CREATED);
+        ProductRequest savedProduct = productService.addProduct(productRequest, categoryId);
+        return new ResponseEntity<>(savedProduct, HttpStatus.CREATED);
     }
 
     @GetMapping("/public/products")
@@ -39,5 +39,29 @@ public class ProductController {
         ProductResponse productResponse = productService.getAllProducts(pageNumber, pageSize, sortBy, sortOrder);
         return new ResponseEntity<>(productResponse, HttpStatus.OK);
 
+    }
+
+    @GetMapping("/public/categories/{categoryId}/products")
+    public ResponseEntity<ProductResponse> getProductsByCategory(@PathVariable Long categoryId){
+        ProductResponse productResponse = productService.searchByCategory(categoryId);
+        return new ResponseEntity<>(productResponse, HttpStatus.OK);
+    }
+
+    @GetMapping("/public/products/keyword/{keyword}")
+    public ResponseEntity<ProductResponse> getProductsByKeyword(@PathVariable String keyword){
+        ProductResponse foundProductResponse = productService.searchProductByKeyword(keyword);
+        return new ResponseEntity<>(foundProductResponse, HttpStatus.FOUND);
+    }
+
+    @PutMapping("/admin/products/{productId}")
+    public ResponseEntity<ProductRequest> updateProduct(@RequestBody ProductRequest productRequest, @PathVariable Long productId){
+        ProductRequest updatedProductRequest = productService.updateProduct(productRequest, productId);
+        return new ResponseEntity<>(updatedProductRequest, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/admin/products/{productId}")
+    public ResponseEntity<ProductRequest> deleteProduct(@PathVariable Long productId){
+        ProductRequest deletedProduct = productService.deleteProduct(productId);
+        return new ResponseEntity<>(deletedProduct, HttpStatus.OK);
     }
 }

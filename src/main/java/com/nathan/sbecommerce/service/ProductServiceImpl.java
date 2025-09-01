@@ -27,10 +27,13 @@ public class ProductServiceImpl implements ProductService{
     private final CategoryRepository categoryRepository;
 
     @Override
-    public ProductRequest addProduct(Product product,
+    public ProductRequest addProduct(ProductRequest productRequest,
                                      Long categoryId) {
         Category category = this.categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
+
+        Product product = modelMapper.map(productRequest, Product.class);
+
         product.setCategory(category);
         product.setImage("default.png");
         Double specialPrice = product.getPrice() - ((product.getDiscount() * 0.01) * product.getPrice());
@@ -69,5 +72,62 @@ public class ProductServiceImpl implements ProductService{
         productResponse.setTotalPages(productPage.getTotalPages());
         productResponse.setLastPage(productPage.isLast());
         return productResponse;
+    }
+
+    @Override
+    public ProductResponse searchByCategory(Long categoryId) {
+        Category category = this.categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
+
+
+        List<Product> productPage = this.productRepository.findByCategoryOrderByPriceAsc(category);
+
+        List<ProductRequest> productRequests = productPage.stream()
+                .map(prod -> modelMapper.map(prod, ProductRequest.class))
+                .toList();
+        ProductResponse productResponse = new ProductResponse();
+        productResponse.setProductRequests(productRequests);
+        return productResponse;
+    }
+
+    @Override
+    public ProductResponse searchProductByKeyword(String keyword) {
+        List<Product> productPage = this.productRepository.findByProductNameLikeIgnoreCase("%" + keyword + "%");
+        if(productPage.isEmpty()){
+            throw new APIException("No products found with keyword: " + keyword);
+        }
+
+        List<ProductRequest> productRequests = productPage.stream()
+                .map(prod -> modelMapper.map(prod, ProductRequest.class))
+                .toList();
+        ProductResponse productResponse = new ProductResponse();
+        productResponse.setProductRequests(productRequests);
+        return productResponse;
+    }
+
+    @Override
+    public ProductRequest updateProduct(ProductRequest productRequest, Long productId) {
+        Product productToUpdate = this.productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product", "productId", productId));
+
+        Product product = modelMapper.map(productRequest, Product.class);
+        //productToUpdate.setProductId(productId);
+        productToUpdate.setProductName(product.getProductName());
+        productToUpdate.setDescription(product.getDescription());
+        productToUpdate.setQuantity(product.getQuantity());
+        productToUpdate.setPrice(product.getPrice());
+        productToUpdate.setDiscount(product.getDiscount());
+        productToUpdate.setSpecialPrice(product.getSpecialPrice());
+        productToUpdate.setCategory(product.getCategory());
+        productToUpdate = this.productRepository.save(product);
+        return modelMapper.map(productToUpdate, ProductRequest.class);
+    }
+
+    @Override
+    public ProductRequest deleteProduct(Long productId) {
+        Product productToDelete = this.productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product", "productId", productId));
+        this.productRepository.delete(productToDelete);
+        return modelMapper.map(productToDelete, ProductRequest.class);
     }
 }
