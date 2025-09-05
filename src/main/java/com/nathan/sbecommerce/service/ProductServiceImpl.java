@@ -16,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.converter.json.GsonBuilderUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -97,33 +98,74 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public ProductResponse searchByCategory(Long categoryId) {
+    public ProductResponse searchByCategory(Long categoryId,
+                                            Integer pageNumber,
+                                            Integer pageSize,
+                                            String sortBy,
+                                            String sortOrder) {
         Category category = this.categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
 
+        Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc") ?
+                Sort.by(sortBy).ascending() :
+                Sort.by(sortBy).descending();
 
-        List<Product> productPage = this.productRepository.findByCategoryOrderByPriceAsc(category);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
 
-        List<ProductRequest> productRequests = productPage.stream()
+        Page<Product> productPage = this.productRepository.findByCategoryOrderByPriceAsc(category, pageable);
+
+        List<Product> products = productPage.getContent();
+
+        if(products.isEmpty()){
+            throw new APIException("No products found with category: " + categoryId);
+        }
+
+        List<ProductRequest> productRequests = products.stream()
                 .map(prod -> modelMapper.map(prod, ProductRequest.class))
                 .toList();
         ProductResponse productResponse = new ProductResponse();
         productResponse.setProductRequests(productRequests);
+        productResponse.setPageNumber(productPage.getNumber());
+        productResponse.setPageSize(productPage.getSize());
+        productResponse.setTotalElements(productPage.getTotalElements());
+        productResponse.setTotalPages(productPage.getTotalPages());
+        productResponse.setLastPage(productPage.isLast());
         return productResponse;
     }
 
     @Override
-    public ProductResponse searchProductByKeyword(String keyword) {
-        List<Product> productPage = this.productRepository.findByProductNameLikeIgnoreCase("%" + keyword + "%");
+    public ProductResponse searchProductByKeyword(String keyword,
+                                            Integer pageNumber,
+                                            Integer pageSize,
+                                            String sortBy,
+                                            String sortOrder) {
+        Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc") ?
+                Sort.by(sortBy).ascending() :
+                Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
+
+        Page<Product> productPage = this.productRepository.findByProductNameLikeIgnoreCase("%" + keyword + "%", pageable);
         if(productPage.isEmpty()){
             throw new APIException("No products found with keyword: " + keyword);
         }
 
-        List<ProductRequest> productRequests = productPage.stream()
+        List<Product> products = productPage.getContent();
+
+        if(products.isEmpty()){
+            throw new APIException("No products found with keyword: " + keyword);
+        }
+
+        List<ProductRequest> productRequests = products.stream()
                 .map(prod -> modelMapper.map(prod, ProductRequest.class))
                 .toList();
         ProductResponse productResponse = new ProductResponse();
         productResponse.setProductRequests(productRequests);
+        productResponse.setPageNumber(productPage.getNumber());
+        productResponse.setPageSize(productPage.getSize());
+        productResponse.setTotalElements(productPage.getTotalElements());
+        productResponse.setTotalPages(productPage.getTotalPages());
+        productResponse.setLastPage(productPage.isLast());
         return productResponse;
     }
 
@@ -189,5 +231,4 @@ public ProductRequest updateProductImage(Long productId, MultipartFile image) th
         Product updatedProduct = this.productRepository.save(productToUpdate);
         return modelMapper.map(updatedProduct, ProductRequest.class);
     }
-
 }

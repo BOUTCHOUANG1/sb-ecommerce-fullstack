@@ -11,11 +11,20 @@ public interface ProductService {
     ProductRequest addProduct(ProductRequest product, Long categoryId);
     ProductResponse getAllProducts(Integer pageNumber,
                                          Integer pageSize,
-                                         String sortBy, String sortOrder);
+                                         String sortBy,
+                                   String sortOrder);
 
-    ProductResponse searchByCategory(Long categoryId);
+    ProductResponse searchByCategory(Long categoryId,
+                                     Integer pageNumber,
+                                     Integer pageSize,
+                                     String sortBy,
+                                     String sortOrder);
 
-    ProductResponse searchProductByKeyword(String keyword);
+    ProductResponse searchProductByKeyword(String keyword,
+                                           Integer pageNumber,
+                                           Integer pageSize,
+                                           String sortBy,
+                                           String sortOrder);
 
     ProductRequest updateProduct(ProductRequest product, Long productId);
 
