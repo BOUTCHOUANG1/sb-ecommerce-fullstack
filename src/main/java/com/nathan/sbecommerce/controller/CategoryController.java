@@ -51,7 +51,7 @@ public class CategoryController {
                     defaultValue = AppConstant.PAGE_SIZE,
                     required = false) Integer pageSize,
             @RequestParam(name = "sortBy",
-                    defaultValue = AppConstant.SORT_BY,
+                    defaultValue = AppConstant.SORT_CATEGORY_BY,
                     required = false) String sortBy,
             @RequestParam(name = "sortOrder",
                     defaultValue = AppConstant.SORT_DIR,
