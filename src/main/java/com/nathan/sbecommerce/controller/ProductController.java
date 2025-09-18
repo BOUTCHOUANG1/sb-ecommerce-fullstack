@@ -22,8 +22,8 @@ public class ProductController {
     @PostMapping("/admin/categories/{categoryId}/product")
     public ResponseEntity<ProductRequest> addProduct(@RequestBody @Valid ProductRequest productRequest,
                                                      @PathVariable Long categoryId){
-        ProductRequest savedProduct = productService.addProduct(productRequest, categoryId);
-        return new ResponseEntity<>(savedProduct, HttpStatus.CREATED);
+        return new ResponseEntity<>(productService.addProduct(productRequest, categoryId),
+                HttpStatus.CREATED);
     }
 
     @GetMapping("/public/products")

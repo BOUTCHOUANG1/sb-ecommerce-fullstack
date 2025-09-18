@@ -1,4 +1,4 @@
-package com.nathan.sbecommerce.service;
+package com.nathan.sbecommerce.service.impl;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nathan.sbecommerce.model.Users;
@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 

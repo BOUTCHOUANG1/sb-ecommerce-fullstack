@@ -4,13 +4,14 @@ import com.nathan.sbecommerce.dto.request.LoginRequest;
 import com.nathan.sbecommerce.dto.request.SignupRequest;
 import com.nathan.sbecommerce.dto.response.LoginResponse;
 import com.nathan.sbecommerce.dto.response.MessageResponse;
+import com.nathan.sbecommerce.exception.APIException;
 import com.nathan.sbecommerce.model.AppRole;
 import com.nathan.sbecommerce.model.Roles;
 import com.nathan.sbecommerce.model.Users;
 import com.nathan.sbecommerce.repository.RoleRepository;
 import com.nathan.sbecommerce.repository.UserRepository;
 import com.nathan.sbecommerce.security.JwtUtils;
-import com.nathan.sbecommerce.service.UserDetailsImpl;
+import com.nathan.sbecommerce.service.impl.UserDetailsImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -39,6 +40,24 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
 
+    /**
+     * Authenticates a user and generates a JWT token
+     *
+     * This method handles user authentication using the provided login credentials.
+     * If the authentication is successful, it generates a JWT token for the user.
+     *
+     * @param loginRequest The LoginRequest object containing user credentials
+     * @return A ResponseEntity containing the LoginResponse with JWT token and user details
+     */
+    /**
+     * Authenticates a user and generates a JWT token
+     *
+     * This method handles user authentication using the provided login credentials.
+     * If the authentication is successful, it generates a JWT token for the user.
+     *
+     * @param loginRequest The LoginRequest object containing user credentials
+     * @return A ResponseEntity containing the LoginResponse with JWT token and user details
+     */
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
         Authentication authentication;
@@ -67,14 +86,28 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Registers a new user in the application
+     *
+     * This method handles user registration using the provided signup request.
+     * It validates the username, email, and password, and checks if they already exist in the system.
+     * If the validation passes, it creates a new user account with the provided information.
+     *
+     * @param signupRequest The SignupRequest object containing user registration details
+     * @return A ResponseEntity containing a MessageResponse indicating the success or failure of the registration
+     */
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signupRequest) {
         if(userRepository.existsByUserName(signupRequest.getUsername())){
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: username is already taken"));
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: username is already taken"));
         }
 
         if(userRepository.existsByEmail(signupRequest.getEmail())){
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is already taken"));
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: Email is already taken"));
         }
 
         Users user = new Users(
@@ -84,33 +117,29 @@ public class AuthController {
         );
 
         Set<String> strRoles = signupRequest.getRole();
+
         Set<Roles> roles = new HashSet<>();
 
-        if(strRoles == null) {
+        if(strRoles == null || strRoles.isEmpty()) {
             Roles userRole = roleRepository.findByRoleName(AppRole.ROLE_USER)
-                    .orElseThrow(() -> new RuntimeException("Error: Role is not found"));
+                    .orElseThrow(() -> new APIException("Error: Role is not found"));
             roles.add(userRole);
         } else {
             strRoles.forEach(role -> {
                 switch (role) {
                     case "admin" -> {
                         Roles adminRole = roleRepository.findByRoleName(AppRole.ROLE_ADMIN)
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found"));
+                                .orElseThrow(() -> new APIException("Error: Role is not found"));
                         roles.add(adminRole);
-                    }
-                    case "user" -> {
-                        Roles userRole = roleRepository.findByRoleName(AppRole.ROLE_USER)
-                            .orElseThrow(() -> new RuntimeException("Error: Role is not found"));
-                        roles.add(userRole);
                     }
                     case "seller" -> {
                         Roles sellerRole = roleRepository.findByRoleName(AppRole.ROLE_SELLER)
-                            .orElseThrow(() -> new RuntimeException("Error: Role is not found"));
+                            .orElseThrow(() -> new APIException("Error: Role is not found"));
                         roles.add(sellerRole);
                     }
                     default -> {
                         Roles userRole = roleRepository.findByRoleName(AppRole.ROLE_USER)
-                            .orElseThrow(() -> new RuntimeException("Error: Role is not found"));
+                            .orElseThrow(() -> new APIException("Error: Role is not found"));
                         roles.add(userRole);
                     }
                 }

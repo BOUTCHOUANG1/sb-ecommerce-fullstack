@@ -1,4 +1,4 @@
-package com.nathan.sbecommerce.service;
+package com.nathan.sbecommerce.service.impl;
 
 import com.nathan.sbecommerce.dto.request.CategoryRequest;
 import com.nathan.sbecommerce.exception.APIException;
@@ -6,6 +6,7 @@ import com.nathan.sbecommerce.exception.ResourceNotFoundException;
 import com.nathan.sbecommerce.model.Category;
 import com.nathan.sbecommerce.dto.response.CategoryResponse;
 import com.nathan.sbecommerce.repository.CategoryRepository;
+import com.nathan.sbecommerce.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;

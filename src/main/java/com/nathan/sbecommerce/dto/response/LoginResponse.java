@@ -9,9 +9,11 @@ import java.util.List;
 @Getter
 public class LoginResponse {
     private Long id;
+
     private String jwtToken;
 
     private String username;
+
     private List<String> roles;
 
     public LoginResponse(Long id, String username, List<String> roles, String jwtToken) {

@@ -1,4 +1,4 @@
-package com.nathan.sbecommerce.service;
+package com.nathan.sbecommerce.service.impl;
 
 
 import com.nathan.sbecommerce.dto.request.ProductRequest;
@@ -9,6 +9,8 @@ import com.nathan.sbecommerce.model.Category;
 import com.nathan.sbecommerce.model.Product;
 import com.nathan.sbecommerce.repository.CategoryRepository;
 import com.nathan.sbecommerce.repository.ProductRepository;
+import com.nathan.sbecommerce.service.FileService;
+import com.nathan.sbecommerce.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,7 +26,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Service
-public class ProductServiceImpl implements ProductService{
+public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final ModelMapper modelMapper;
     private final CategoryRepository categoryRepository;

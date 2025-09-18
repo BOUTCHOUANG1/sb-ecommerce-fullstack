@@ -1,4 +1,4 @@
-package com.nathan.sbecommerce.service;
+package com.nathan.sbecommerce.service.impl;
 
 import com.nathan.sbecommerce.model.Users;
 import com.nathan.sbecommerce.repository.UserRepository;
