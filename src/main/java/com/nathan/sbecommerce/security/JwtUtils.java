@@ -1,14 +1,18 @@
 package com.nathan.sbecommerce.security;
 
+import com.nathan.sbecommerce.service.impl.UserDetailsImpl;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.WebUtils;
 
 import javax.crypto.SecretKey;
 import java.security.Key;
@@ -47,46 +51,36 @@ public class JwtUtils {
     @Value("${spring.app.jwtExpirationMs}")
     private int jwtExpirationMs;
 
-    /**
-     * Extracts JWT token from the Authorization header in HTTP request
-     * Used in filter chains to process incoming requests
-     *
-     * @param request The HTTP request containing the Authorization header
-     * @return The JWT token string without "Bearer " prefix, or null if not found
-     */
-   /** public String getJwtFromHeader(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        logger.debug("Authorization Header: {}", bearerToken);
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7); // Remove Bearer prefix
-        }
-        return null;
-    }*/
+    @Value("${spring.app.jwtCookie}")
+    private String jwtCookie;
+
 
    public String getJwtFromCookie(HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
+        Cookie cookies = WebUtils.getCookie(request, jwtCookie);
         if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("jwt")) {
-                    return cookie.getValue();
-                }
-            }
+            return cookies.getValue();
         }
         return null;
     }
 
-    /**
-     * Generates a new JWT token for a given user
-     * Used during login/authentication process to create user tokens
-     *
-     * @param userDetails Spring Security user details containing username and authorities
-     * @return A signed JWT token string
-     */
-    public String generateTokenFromUsername(UserDetails userDetails) {
-        String username = userDetails.getUsername();
+    public ResponseCookie generateJwtCookie(UserDetailsImpl userPrincipal) {
+       String jwt = generateTokenFromUsername(userPrincipal.getUsername());
+       return ResponseCookie.from(jwtCookie, jwt)
+               .path("/api")
+               .maxAge(24 * 60 * 60)
+               .httpOnly(false)
+               .build();
+    }
+
+    public ResponseCookie getClearJwtCookie() {
+       return ResponseCookie.from(jwtCookie, null)
+               .path("/api")
+               .build();
+    }
+
+    public String generateTokenFromUsername(String username) {
         return Jwts.builder()
                 .subject(username)
-                .claim("roles", userDetails.getAuthorities())
                 .issuedAt(new Date())
                 .expiration(new Date((new Date()).getTime() + jwtExpirationMs))
                 .signWith(key())

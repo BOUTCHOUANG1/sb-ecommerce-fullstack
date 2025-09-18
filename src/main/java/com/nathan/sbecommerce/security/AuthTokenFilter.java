@@ -102,7 +102,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
      * @return The JWT token string if present, null otherwise
      */
     private String parseJwt(HttpServletRequest request) {
-        String jwt = jwtUtils.getJwtFromHeader(request);
+        String jwt = jwtUtils.getJwtFromCookie(request);
         logger.debug("AuthTokenFilter.java: {}", jwt);
         return jwt;
     }
