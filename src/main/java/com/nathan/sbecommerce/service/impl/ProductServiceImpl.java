@@ -56,8 +56,7 @@ public class ProductServiceImpl implements ProductService{
             product.setImage("default.png");
             Double specialPrice = product.getPrice() - ((product.getDiscount() * 0.01) * product.getPrice());
             product.setSpecialPrice(specialPrice);
-            Product savedProduct = this.productRepository.save(product);
-            return modelMapper.map(savedProduct, ProductRequest.class);
+            return modelMapper.map(this.productRepository.save(product), ProductRequest.class);
         } else {
             throw new APIException("Product already exists");
         }
@@ -212,6 +211,12 @@ public class ProductServiceImpl implements ProductService{
  * - When adding a new image to a product that previously had no image
  * - When replacing/updating an existing product image
  * - When managing product images through an admin interface
+ *
+ * Key steps:
+ * 1. Find the product by ID
+ * 2. Upload the new image to the "images/" directory
+ * 3. Update the product's image reference in the database
+ * 4. Return the updated product information
  *
  * The image will be:
  * - Stored in the "images/" directory
